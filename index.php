@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smash Or Pass</title>
+    <link rel="stylesheet" href="https://romysecss.vercel.app/style.css">
 </head>
 <body>
     <h1>Bienvenue sur Smash Or Pass</h1>

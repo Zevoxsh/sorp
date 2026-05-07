@@ -25,6 +25,7 @@ $first = $remainingProfiles[0] ?? null;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://romysecss.vercel.app/style.css">
     <title>Smash or Pass</title>
     <style>
         body { font-family: Arial, sans-serif; text-align:center; }
@@ -72,6 +73,7 @@ $first = $remainingProfiles[0] ?? null;
 
     function renderProfile(profile) {
         document.getElementById('game-area').innerHTML = `
+        
             <div class="card" data-id="${profile.id}">
                 <img src="${profile.img}" alt="${profile.name}">
                 <h2>${profile.name}</h2>
