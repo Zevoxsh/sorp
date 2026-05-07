@@ -20,12 +20,17 @@ $user = getUser();
 $userId = (int)$user['id'];
 $id = (int)$data['id'];
 $action = $data['action'] === 'smash' ? 'smash' : 'pass';
+$profilesSeed = $_SESSION['profile_seed'] ?? null;
+if ($profilesSeed === null) {
+    $profilesSeed = bin2hex(random_bytes(8));
+    $_SESSION['profile_seed'] = $profilesSeed;
+}
 
 // save vote in database
 saveVote($userId, $id, $action);
 
 // determine next profile based on DB votes for this user
-$profiles = getProfiles();
+$profiles = getProfiles(10, $profilesSeed);
 $votedIds = getVotedProfileIds($userId);
 $next = null;
 foreach ($profiles as $p) {

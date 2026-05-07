@@ -7,5 +7,6 @@ if (!isLoggedIn()) {
 }
 $user = getUser();
 clearVotes($user['id']);
+$_SESSION['profile_seed'] = bin2hex(random_bytes(8));
 header('Location: game.php');
 exit;

@@ -6,7 +6,13 @@ if (!isLoggedIn()) {
     header('Location: login.php');
     exit;
 }
-$profiles = getProfiles();
+$profilesSeed = $_SESSION['profile_seed'] ?? null;
+if ($profilesSeed === null) {
+    $profilesSeed = bin2hex(random_bytes(8));
+    $_SESSION['profile_seed'] = $profilesSeed;
+}
+
+$profiles = getProfiles(10, $profilesSeed);
 // Find first profile not yet voted by this user (DB)
 $user = getUser();
 $votedIds = getVotedProfileIds($user['id']);
