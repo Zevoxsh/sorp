@@ -1,6 +1,5 @@
 <?php
-
-function getProfiles($limit = 10, $seed = null) {
+function getProfiles($limit = 25, $seed = null) {
     static $cachedProfiles = null;
 
     if ($cachedProfiles !== null && $seed === null) {
@@ -80,3 +79,4 @@ function getFallbackFemaleProfiles() {
         ['id' => 1015, 'name' => 'Nozomi', 'img' => 'anime/nozomi.svg'],
     ];
 }
+?>

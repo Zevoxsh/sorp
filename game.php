@@ -1,5 +1,5 @@
 <?php
-require_once 'function.inc.php';
+require_once 'config/model.inc.php';
 require_once 'profiles.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 if (!isLoggedIn()) {
@@ -8,7 +8,7 @@ if (!isLoggedIn()) {
 }
 $profilesSeed = bin2hex(random_bytes(8));
 
-$profiles = getProfiles(10, $profilesSeed);
+$profiles = getProfiles(25, $profilesSeed);
 // Find first profile not yet voted by this user (DB)
 $user = getUser();
 $votedIds = getVotedProfileIds($user['id']);
@@ -25,34 +25,34 @@ $first = $remainingProfiles[0] ?? null;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://romysecss.vercel.app/style.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <title>Smash or Pass</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align:center; }
-        .card { display:inline-block; border:1px solid #ccc; padding:16px; border-radius:8px; }
-        img { width:300px; height:300px; object-fit:cover; border-radius:8px; }
-        .buttons { margin-top:12px; }
-        button { padding:10px 20px; margin:0 8px; font-size:16px; }
-    </style>
+    <link rel="icon" type="image/png" href="asset/logo.png">
 </head>
 <body>
-    <h1>Smash or Pass</h1>
-    <div id="game-area">
-        <?php if ($first): ?>
-        <div class="card" data-id="<?= $first['id'] ?>">
-            <img src="<?= htmlspecialchars($first['img']) ?>" alt="<?= htmlspecialchars($first['name']) ?>">
-            <h2><?= htmlspecialchars($first['name']) ?></h2>
-            <div class="buttons">
-                <button id="smash">Smash</button>
-                <button id="pass">Pass</button>
+    <div class="main-wrapper">
+        <a href="index.php"><img src="asset/logo.png" alt="Smash Or Pass Logo" class="logo"></a>
+        <div id="game-area">
+            <?php if ($first): ?>
+            <div class="card" data-id="<?= $first['id'] ?>">
+                <img src="<?= htmlspecialchars($first['img']) ?>" alt="<?= htmlspecialchars($first['name']) ?>">
+                <h2><?= htmlspecialchars($first['name']) ?></h2>
+                <div class="buttons">
+                    <button id="smash"><i class="material-icons">favorite</i> Smash</button>
+                    <button id="pass"><i class="material-icons">close</i> Pass</button>
+                </div>
             </div>
+            <?php else: ?>
+            <div class="content-box">
+                <p><i class="material-icons check-icon">check_circle</i> Vous avez voté sur tous les profils !</p>
+                <p><a href="config/reset_votes.php" class="btn-primary"><i class="material-icons">refresh</i> Recommencer</a></p>
+            </div>
+            <?php endif; ?>
         </div>
-        <?php else: ?>
-        <p>Vous avez voté sur tous les profils. <a href="reset_votes.php">Recommencer</a></p>
-        <?php endif; ?>
-    </div>
 
-    <p><a href="index.php">Retour</a></p>
+        <p class="return-link"><a href="index.php"><i class="material-icons">arrow_back</i> Retour à l'accueil</a></p>
+    </div>
 
     <script>
     const profiles = <?= json_encode(array_values($remainingProfiles), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
@@ -60,7 +60,7 @@ $first = $remainingProfiles[0] ?? null;
 
     async function sendVote(id, action) {
         try {
-            const resp = await fetch('vote.php', {
+            const resp = await fetch('config/vote.php', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({id: id, action: action})
@@ -78,14 +78,14 @@ $first = $remainingProfiles[0] ?? null;
                 <img src="${profile.img}" alt="${profile.name}">
                 <h2>${profile.name}</h2>
                 <div class="buttons">
-                    <button id="smash">Smash</button>
-                    <button id="pass">Pass</button>
+                    <button id="smash"><i class="material-icons">favorite</i> Smash</button>
+                    <button id="pass"><i class="material-icons">close</i> Pass</button>
                 </div>
             </div>`;
     }
 
     function renderEnd() {
-        document.getElementById('game-area').innerHTML = '<p>Vous avez voté sur tous les profils. <a href="reset_votes.php">Recommencer</a></p>';
+        document.getElementById('game-area').innerHTML = '<p>Vous avez voté sur tous les profils. <a href="config/reset_votes.php">Recommencer</a></p>';
     }
 
     document.addEventListener('click', async (e) => {

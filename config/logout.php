@@ -1,6 +1,7 @@
 <?php
-require_once 'function.inc.php';
+require_once 'model.inc.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 logout();
-header('Location: index.php');
+header('Location: ../index.php');
 exit;
+?>

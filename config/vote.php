@@ -1,5 +1,5 @@
 <?php
-require_once 'function.inc.php';
+require_once 'model.inc.php';
 require_once 'profiles.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 header('Content-Type: application/json; charset=utf-8');
@@ -30,7 +30,7 @@ if ($profilesSeed === null) {
 saveVote($userId, $id, $action);
 
 // determine next profile based on DB votes for this user
-$profiles = getProfiles(10, $profilesSeed);
+$profiles = getProfiles(25, $profilesSeed);
 $votedIds = getVotedProfileIds($userId);
 $next = null;
 foreach ($profiles as $p) {
@@ -38,3 +38,4 @@ foreach ($profiles as $p) {
 }
 
 echo json_encode(['next' => $next]);
+?>

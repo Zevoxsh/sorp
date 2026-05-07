@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'database/db.php';
+require_once 'db.php';
 
 global $pdo;
 try {
@@ -98,3 +98,4 @@ function clearVotes($userId) {
     $stmt = $pdo->prepare('DELETE FROM votes WHERE user_id = :user_id');
     return $stmt->execute(['user_id' => $userId]);
 }
+?>
