@@ -6,20 +6,19 @@ if (!isLoggedIn()) {
     header('Location: login.php');
     exit;
 }
-$profilesSeed = $_SESSION['profile_seed'] ?? null;
-if ($profilesSeed === null) {
-    $profilesSeed = bin2hex(random_bytes(8));
-    $_SESSION['profile_seed'] = $profilesSeed;
-}
+$profilesSeed = bin2hex(random_bytes(8));
 
 $profiles = getProfiles(10, $profilesSeed);
 // Find first profile not yet voted by this user (DB)
 $user = getUser();
 $votedIds = getVotedProfileIds($user['id']);
-$first = null;
+$remainingProfiles = [];
 foreach ($profiles as $p) {
-    if (!in_array($p['id'], $votedIds)) { $first = $p; break; }
+    if (!in_array($p['id'], $votedIds)) {
+        $remainingProfiles[] = $p;
+    }
 }
+$first = $remainingProfiles[0] ?? null;
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -55,13 +54,36 @@ foreach ($profiles as $p) {
     <p><a href="index.php">Retour</a></p>
 
     <script>
+    const profiles = <?= json_encode(array_values($remainingProfiles), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+    let currentIndex = 0;
+
     async function sendVote(id, action) {
-        const resp = await fetch('vote.php', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({id: id, action: action})
-        });
-        return resp.json();
+        try {
+            const resp = await fetch('vote.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id: id, action: action})
+            });
+            return await resp.json();
+        } catch (error) {
+            return { error: error.message };
+        }
+    }
+
+    function renderProfile(profile) {
+        document.getElementById('game-area').innerHTML = `
+            <div class="card" data-id="${profile.id}">
+                <img src="${profile.img}" alt="${profile.name}">
+                <h2>${profile.name}</h2>
+                <div class="buttons">
+                    <button id="smash">Smash</button>
+                    <button id="pass">Pass</button>
+                </div>
+            </div>`;
+    }
+
+    function renderEnd() {
+        document.getElementById('game-area').innerHTML = '<p>Vous avez voté sur tous les profils. <a href="reset_votes.php">Recommencer</a></p>';
     }
 
     document.addEventListener('click', async (e) => {
@@ -70,19 +92,12 @@ foreach ($profiles as $p) {
             const id = card.getAttribute('data-id');
             const action = e.target.id === 'smash' ? 'smash' : 'pass';
             e.target.disabled = true;
-            const data = await sendVote(parseInt(id,10), action);
-            if (data.next) {
-                document.getElementById('game-area').innerHTML = `
-                    <div class="card" data-id="${data.next.id}">
-                        <img src="${data.next.img}" alt="${data.next.name}">
-                        <h2>${data.next.name}</h2>
-                        <div class="buttons">
-                            <button id="smash">Smash</button>
-                            <button id="pass">Pass</button>
-                        </div>
-                    </div>`;
+            await sendVote(parseInt(id,10), action);
+            currentIndex += 1;
+            if (profiles[currentIndex]) {
+                renderProfile(profiles[currentIndex]);
             } else {
-                document.getElementById('game-area').innerHTML = '<p>Vous avez voté sur tous les profils. <a href="reset_votes.php">Recommencer</a></p>';
+                renderEnd();
             }
         }
     });
